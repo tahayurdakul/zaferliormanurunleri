@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  icon      String    @default("🪵")
+  sortOrder Int       @default(0)
+  active    Boolean   @default(true)
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  price       Float
+  unit        String   @default("ADET")
+  imageUrl    String?
+  featured    Boolean  @default(false)
+  active      Boolean  @default(true)
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SiteSettings {
+  id           String @id @default("default")
+  companyName  String @default("Zaferli Orman Ürünleri")
+  phone        String @default("05010300461")
+  whatsapp     String @default("905010300461")
+  email        String @default("yusufbaraktars@icloud.com")
+  address      String @default("Adres bilgisi yakında eklenecek")
+  workingHours String @default("Pazartesi - Cumartesi: 08:00 - 18:00")
+  aboutText    String @default("")
+}
+
+model AdminUser {
+  id           String @id @default(cuid())
+  email        String @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
