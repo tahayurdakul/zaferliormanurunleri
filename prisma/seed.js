@@ -28,10 +28,11 @@ const products = [
 ];
 
 async function main() {
-  await prisma.product.deleteMany();
-  await prisma.category.deleteMany();
-  await prisma.siteSettings.deleteMany();
-  await prisma.adminUser.deleteMany();
+  const existing = await prisma.category.count();
+  if (existing > 0) {
+    console.log("Veritabanı zaten dolu, seed atlanıyor.");
+    return;
+  }
 
   const categoryMap = {};
   for (const cat of categories) {
