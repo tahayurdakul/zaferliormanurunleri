@@ -5,6 +5,7 @@ import Image from "next/image";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { formatPrice } from "@/lib/format";
+import { ProductImageUpload } from "@/components/admin/ProductImageUpload";
 
 interface Category {
   id: string;
@@ -45,8 +46,6 @@ export default function AdminProductsPage() {
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [uploading, setUploading] = useState(false);
-
   const fetchData = async () => {
     const [prodRes, catRes] = await Promise.all([
       fetch("/api/products"),
@@ -57,20 +56,6 @@ export default function AdminProductsPage() {
   };
 
   useEffect(() => { fetchData(); }, []);
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const res = await fetch("/api/upload", { method: "POST", body: formData });
-    const data = await res.json();
-    setForm({ ...form, imageUrl: data.url });
-    setUploading(false);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -172,15 +157,10 @@ export default function AdminProductsPage() {
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
-            <div>
-              <input type="file" accept="image/*" onChange={handleImageUpload} className="text-sm" />
-              {uploading && <span className="text-sm text-oak">Yükleniyor...</span>}
-              {form.imageUrl && (
-                <div className="relative mt-2 h-16 w-16">
-                  <Image src={form.imageUrl} alt="Preview" fill className="rounded object-cover" />
-                </div>
-              )}
-            </div>
+            <ProductImageUpload
+              imageUrl={form.imageUrl}
+              onChange={(url) => setForm({ ...form, imageUrl: url })}
+            />
           </div>
           <textarea
             placeholder="Açıklama"
